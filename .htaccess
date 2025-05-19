@@ -1,0 +1,19 @@
+RewriteEngine On
+RewriteBase /mywebsite/
+
+# Nếu file hoặc thư mục không tồn tại
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+
+# Nếu truy cập gốc hoặc index.php thì không rewrite
+RewriteRule ^(index\.php)?$ - [L]
+
+# Chuyển hướng các URL thân thiện
+RewriteRule ^cart/?$ index.php?controller=Cart&action=view [QSA,L]
+RewriteRule ^orders/?$ index.php?controller=Order&action=myOrders [QSA,L]
+RewriteRule ^profile/?$ index.php?controller=Profile&action=index [QSA,L]
+RewriteRule ^login/?$ index.php?controller=Auth&action=memberLoginForm [QSA,L]
+RewriteRule ^cart/add/([0-9]+)$ index.php?controller=Cart&action=add&id=$1 [QSA,L]
+
+# Quy tắc mặc định cho các URL khác (chỉ nhận chữ, số, gạch ngang, gạch dưới)
+RewriteRule ^([a-zA-Z0-9_-]+)/?$ index.php?controller=$1 [QSA,L]
