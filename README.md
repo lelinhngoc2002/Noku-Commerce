@@ -1,4 +1,5 @@
 # Noku-Commerce
+Tất cả tài khoản của QTV & member đều dùng chung 1 mật khẩu: 123
 QTV:
 Chức năng đăng nhập: 
 ![image](https://github.com/user-attachments/assets/fbd5ba82-c4b6-4b51-af0b-e42e593d222c)
