@@ -25,6 +25,7 @@
                             <p class="card-text"><strong>Giá: <?= number_format($product['price'], 0, ',', '.') ?> VNĐ</strong></p>                             
                             <?php if (isset($_SESSION['user_role']) && $_SESSION['user_role'] === 'member'): ?>
                                 <form method="POST" action="cart/add/<?= $product['id'] ?>" class="d-flex align-items-center justify-content-between">
+                                    <input type="hidden" name="csrf_token" value="<?php echo $csrf_token; ?>">
                                     <div class="input-group input-group-sm me-2" style="width: 110px;">
                                         <button type="button" class="btn btn-outline-secondary btn-qty-minus">-</button>
                                         <input type="number" name="quantity" class="form-control text-center qty-input" value="1" min="1" style="max-width: 50px;">
@@ -73,20 +74,21 @@
 <!-- Thêm script quantity selector -->
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    document.querySelectorAll('.card').forEach(function(card) {
-        const minusBtn = card.querySelector('.btn-qty-minus');
-        const plusBtn = card.querySelector('.btn-qty-plus');
-        const qtyInput = card.querySelector('.qty-input');
-        if (minusBtn && plusBtn && qtyInput) {
-            minusBtn.addEventListener('click', function() {
-                let val = parseInt(qtyInput.value) || 1;
-                if (val > 1) qtyInput.value = val - 1;
-            });
-            plusBtn.addEventListener('click', function() {
-                let val = parseInt(qtyInput.value) || 1;
-                qtyInput.value = val + 1;
-            });
-        }
+    document.querySelectorAll('.btn-qty-minus').forEach(function(btn) {
+        btn.addEventListener('click', function(e) {
+            e.preventDefault(); // Ngăn submit form khi click
+            const input = this.parentElement.querySelector('.qty-input');
+            let val = parseInt(input.value) || 1;
+            if (val > 1) input.value = val - 1;
+        });
+    });
+    document.querySelectorAll('.btn-qty-plus').forEach(function(btn) {
+        btn.addEventListener('click', function(e) {
+            e.preventDefault(); // Ngăn submit form khi click
+            const input = this.parentElement.querySelector('.qty-input');
+            let val = parseInt(input.value) || 1;
+            input.value = val + 1;
+        });
     });
 });
 </script>

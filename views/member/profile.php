@@ -10,6 +10,7 @@ unset($_SESSION['errors'], $_SESSION['success']);
         <div class="alert alert-success"><?= htmlspecialchars($success) ?></div>
     <?php endif; ?>
     <form method="POST" action="index.php?controller=Profile&action=update">
+        <input type="hidden" name="csrf_token" value="<?php echo $csrf_token; ?>">
         <div class="mb-3">
             <label class="form-label">Tên</label>
             <input type="text" name="name" class="form-control <?= isset($errors['name']) ? 'is-invalid' : '' ?>" value="<?= htmlspecialchars($user['name'] ?? '') ?>">

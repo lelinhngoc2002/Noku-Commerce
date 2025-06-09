@@ -1,5 +1,48 @@
+# Bật rewrite engine
 RewriteEngine On
 RewriteBase /mywebsite/
+
+# Chặn truy cập trực tiếp vào các file nhạy cảm
+<FilesMatch "^\.">
+    Order allow,deny
+    Deny from all
+</FilesMatch>
+
+<FilesMatch "\.(php|php3|php4|php5|phtml|inc)$">
+    Order Deny,Allow
+    Deny from all
+    Allow from 127.0.0.1
+</FilesMatch>
+
+# Cho phép truy cập index.php
+<Files "index.php">
+    Order Allow,Deny
+    Allow from all
+</Files>
+
+# Chặn truy cập vào thư mục
+Options -Indexes
+
+# Bảo vệ file .htaccess
+<Files .htaccess>
+    Order allow,deny
+    Deny from all
+</Files>
+
+# Bảo vệ thư mục config
+<IfModule mod_rewrite.c>
+    RewriteRule ^config/.* - [F,L]
+</IfModule>
+
+# Thiết lập các header bảo mật
+<IfModule mod_headers.c>
+    Header set X-Content-Type-Options "nosniff"
+    Header set X-Frame-Options "SAMEORIGIN"
+    Header set X-XSS-Protection "1; mode=block"
+    Header set Content-Security-Policy "default-src 'self' https://cdn.jsdelivr.net; style-src 'self' https://cdn.jsdelivr.net 'unsafe-inline'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; font-src 'self' https://cdn.jsdelivr.net data:; img-src 'self' data: https://cdn.jsdelivr.net;"
+    Header set Strict-Transport-Security "max-age=31536000; includeSubDomains"
+    Header set Referrer-Policy "strict-origin-when-cross-origin"
+</IfModule>
 
 # Nếu file hoặc thư mục không tồn tại
 RewriteCond %{REQUEST_FILENAME} !-f
@@ -17,3 +60,24 @@ RewriteRule ^cart/add/([0-9]+)$ index.php?controller=Cart&action=add&id=$1 [QSA,
 
 # Quy tắc mặc định cho các URL khác (chỉ nhận chữ, số, gạch ngang, gạch dưới)
 RewriteRule ^([a-zA-Z0-9_-]+)/?$ index.php?controller=$1 [QSA,L]
+
+# Chặn các request độc hại
+RewriteCond %{QUERY_STRING} (\<|%3C).*script.*(\>|%3E) [NC,OR]
+RewriteCond %{QUERY_STRING} GLOBALS(=|\[|\%[0-9A-Z]{0,2}) [OR]
+RewriteCond %{QUERY_STRING} _REQUEST(=|\[|\%[0-9A-Z]{0,2})
+RewriteRule .* index.php [F,L]
+
+# Chặn các file không được phép
+<FilesMatch "\.(bak|config|sql|fla|psd|ini|log|sh|inc|swp|dist)$">
+    Order allow,deny
+    Deny from all
+    Satisfy All
+</FilesMatch>
+
+# Bảo vệ khỏi XSS và các cuộc tấn công khác
+<IfModule mod_headers.c>
+    Header set X-XSS-Protection "1; mode=block"
+    Header set X-Content-Type-Options "nosniff"
+    Header set X-Frame-Options "SAMEORIGIN"
+    Header set Content-Security-Policy "default-src 'self' https://cdn.jsdelivr.net; style-src 'self' https://cdn.jsdelivr.net 'unsafe-inline'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; font-src 'self' https://cdn.jsdelivr.net data:; img-src 'self' data: https://cdn.jsdelivr.net;"
+</IfModule>

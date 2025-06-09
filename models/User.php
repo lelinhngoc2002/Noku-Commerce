@@ -11,13 +11,39 @@ class User {
     public ?string $created_at;
     public ?string $updated_at;
 
+    // Validate email
+    private static function validateEmail($email) {
+        return filter_var($email, FILTER_VALIDATE_EMAIL);
+    }
+
+    // Validate password strength
+    private static function validatePassword($password) {
+        // Ít nhất 8 ký tự, 1 chữ hoa, 1 chữ thường, 1 số
+        return strlen($password) >= 8 
+            && preg_match('/[A-Z]/', $password) 
+            && preg_match('/[a-z]/', $password) 
+            && preg_match('/[0-9]/', $password);
+    }
+
+    // Sanitize input
+    private static function sanitizeInput($data) {
+        if (is_array($data)) {
+            return array_map([self::class, 'sanitizeInput'], $data);
+        }
+        return htmlspecialchars(strip_tags(trim($data)));
+    }
+
     // Tìm user theo email
     public static function findByEmail($email) {
+        if (!self::validateEmail($email)) {
+            return null;
+        }
+
         $db = DB::getInstance();
         $stmt = $db->prepare("SELECT * FROM users WHERE email = :email");
         $stmt->execute(['email' => $email]);
-        $stmt->setFetchMode(PDO::FETCH_CLASS, 'User'); // Gán kết quả vào class User
-        return $stmt->fetch(); // Trả về đối tượng User hoặc null
+        $stmt->setFetchMode(PDO::FETCH_CLASS, 'User');
+        return $stmt->fetch();
     }
 
     // Lấy tất cả user, mỗi trang 6 user
@@ -27,11 +53,13 @@ class User {
         $params = [];
 
         if (!empty($search)) {
+            $search = self::sanitizeInput($search);
             $where[] = "(name LIKE :search OR email LIKE :search)";
             $params['search'] = "%$search%";
         }
 
         if (!empty($role)) {
+            $role = self::sanitizeInput($role);
             $where[] = "role = :role";
             $params['role'] = $role;
         }
@@ -59,11 +87,13 @@ class User {
         $params = [];
 
         if (!empty($search)) {
+            $search = self::sanitizeInput($search);
             $where[] = "(name LIKE :search OR email LIKE :search)";
             $params['search'] = "%$search%";
         }
 
         if (!empty($role)) {
+            $role = self::sanitizeInput($role);
             $where[] = "role = :role";
             $params['role'] = $role;
         }
@@ -83,23 +113,41 @@ class User {
 
     // Tìm user theo ID
     public static function find($id) {
+        if (!is_numeric($id)) {
+            return null;
+        }
+
         $db = DB::getInstance();
         $stmt = $db->prepare("SELECT * FROM users WHERE id = ?");
-        $stmt->execute([$id]);
+        $stmt->execute([(int)$id]);
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
     // Lưu hoặc cập nhật user
     public static function save($data) {
         $db = DB::getInstance();
+        
+        // Sanitize input
+        $data = self::sanitizeInput($data);
+
+        // Validate email
+        if (!self::validateEmail($data['email'])) {
+            throw new Exception('Email không hợp lệ');
+        }
+
+        // Validate password for new users or password changes
+        if (!isset($data['id']) || (isset($data['password']) && $data['password'] !== '')) {
+            if (!self::validatePassword($data['password'])) {
+                throw new Exception('Mật khẩu phải có ít nhất 8 ký tự, bao gồm chữ hoa, chữ thường và số');
+            }
+            
+        }
 
         if (isset($data['id']) && $data['id']) {
             // UPDATE
             if (isset($data['password']) && $data['password'] !== '') {
-                // Có cập nhật mật khẩu
                 $sql = "UPDATE users SET name=:name, email=:email, password=:password, role=:role, updated_at=NOW() WHERE id=:id";
             } else {
-                // Không cập nhật mật khẩu
                 $sql = "UPDATE users SET name=:name, email=:email, role=:role, updated_at=NOW() WHERE id=:id";
             }
             $stmt = $db->prepare($sql);
@@ -128,9 +176,13 @@ class User {
 
     // Xóa user theo ID
     public static function delete($id) {
+        if (!is_numeric($id)) {
+            return false;
+        }
+
         $db = DB::getInstance();
         $stmt = $db->prepare("DELETE FROM users WHERE id = ?");
-        return $stmt->execute([$id]);
+        return $stmt->execute([(int)$id]);
     }
 }
 ?>

@@ -5,7 +5,7 @@ if (session_status() === PHP_SESSION_NONE) {
 ?>
 <div class="container mt-5">
     <div class="d-flex justify-content-between align-items-center mb-3">
-        <h2 class="mb-0"><i class="bi bi-people"></i> Danh sách Users</h2>
+        <h2 class="mb-0"><i class="bi bi-people"></i> Danh sách tài khoản</h2>
         <a href="index.php?controller=User&action=create" class="btn btn-success">
             <i class="bi bi-person-plus"></i> Thêm User Mới
         </a>

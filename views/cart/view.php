@@ -34,6 +34,7 @@
         <a href="index.php?controller=Cart&action=clear" class="btn btn-secondary mt-2">Xóa toàn bộ giỏ hàng</a>
         <?php if (isset($_SESSION['user_role']) && $_SESSION['user_role'] === 'member'): ?>
             <form method="POST" action="index.php?controller=Order&action=checkout" class="mt-2">
+                <input type="hidden" name="csrf_token" value="<?php echo $csrf_token; ?>">
                 <button type="submit" class="btn btn-success">Đặt hàng</button>
             </form>
         <?php endif; ?>

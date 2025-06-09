@@ -18,6 +18,7 @@ if (session_status() === PHP_SESSION_NONE) {
     <?php endif; ?>
 
     <form method="POST" action="index.php?controller=User&action=<?php echo (isset($user) && isset($user['id'])) ? 'update' : 'store'; ?>">
+        <input type="hidden" name="csrf_token" value="<?php echo $csrf_token; ?>">
         <?php if (isset($user) && isset($user['id'])): ?>
             <input type="hidden" name="id" value="<?php echo htmlspecialchars($user['id']); ?>">
         <?php endif; ?>

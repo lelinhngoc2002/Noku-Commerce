@@ -13,6 +13,7 @@ unset($_SESSION['errors'], $_SESSION['old']);
     <?php endif; ?>
 
     <form method="POST" action="index.php?controller=Product&action=<?= $product ? 'update' : 'store' ?>" enctype="multipart/form-data">
+        <input type="hidden" name="csrf_token" value="<?php echo $csrf_token; ?>">
         <?php if ($product): ?>
             <input type="hidden" name="id" value="<?= $product['id'] ?>">
         <?php endif; ?>

@@ -14,6 +14,7 @@ $error = $GLOBALS['error'] ?? '';
     <div class="container mt-5">
         <h1 class="text-center">Đăng nhập quản trị viên</h1>
         <form action="index.php?controller=Admin&action=login" method="POST">
+            <input type="hidden" name="csrf_token" value="<?php echo $csrf_token; ?>">
             <div class="mb-3">
                 <label for="email" class="form-label">Email</label>
                 <input type="email" class="form-control" id="email" name="email" required>
