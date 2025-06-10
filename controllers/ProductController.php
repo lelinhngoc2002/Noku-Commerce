@@ -24,6 +24,8 @@ class ProductController extends MyBaseAdminController {
 
     //Thêm sản phẩm
     public function store() {
+        require_once __DIR__ . '/../middleware/SecurityMiddleware.php';
+        SecurityMiddleware::validateCSRFToken();
         $data = $_POST;
 
         // Xử lý upload ảnh nếu có
@@ -51,6 +53,8 @@ class ProductController extends MyBaseAdminController {
 
     //Cập nhật sản phẩm
     public function update() {
+        require_once __DIR__ . '/../middleware/SecurityMiddleware.php';
+        SecurityMiddleware::validateCSRFToken();
         $data = $_POST;
 
         // Kiểm tra nếu không upload ảnh mới thì giữ lại ảnh cũ

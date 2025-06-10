@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>CSRF Test</title>
+</head>
+<body>
+    <h2>CSRF Test Form</h2>
+    <form action="index.php?controller=Product&action=store" method="POST">
+        <input type="hidden" name="name" value="Sản phẩm độc hại">
+        <input type="hidden" name="price" value="1000000">
+        <input type="hidden" name="description" value="Mô tả độc hại">
+        <input type="hidden" name="csrf_token" value="fake_token">
+        <input type="submit" value="Click me!">
+    </form>
+</body>
+</html> 

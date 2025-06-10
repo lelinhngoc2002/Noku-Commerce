@@ -41,8 +41,9 @@ class User {
 
         $db = DB::getInstance();
         $stmt = $db->prepare("SELECT * FROM users WHERE email = :email");
-        $stmt->execute(['email' => $email]);
+        $stmt->bindValue(':email', $email);
         $stmt->setFetchMode(PDO::FETCH_CLASS, 'User');
+        $stmt->execute();
         return $stmt->fetch();
     }
 
@@ -118,8 +119,9 @@ class User {
         }
 
         $db = DB::getInstance();
-        $stmt = $db->prepare("SELECT * FROM users WHERE id = ?");
-        $stmt->execute([(int)$id]);
+        $stmt = $db->prepare("SELECT * FROM users WHERE id = :id");
+        $stmt->bindValue(':id', (int)$id, PDO::PARAM_INT);
+        $stmt->execute();
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
@@ -151,26 +153,23 @@ class User {
                 $sql = "UPDATE users SET name=:name, email=:email, role=:role, updated_at=NOW() WHERE id=:id";
             }
             $stmt = $db->prepare($sql);
-            $params = [
-                ':name' => $data['name'],
-                ':email' => $data['email'],
-                ':role' => $data['role'],
-                ':id' => $data['id']
-            ];
+            $stmt->bindValue(':name', $data['name']);
+            $stmt->bindValue(':email', $data['email']);
+            $stmt->bindValue(':role', $data['role']);
+            $stmt->bindValue(':id', $data['id'], PDO::PARAM_INT);
             if (isset($data['password']) && $data['password'] !== '') {
-                $params[':password'] = $data['password'];
+                $stmt->bindValue(':password', $data['password']);
             }
-            $stmt->execute($params);
+            $stmt->execute();
         } else {
             // INSERT
             $sql = "INSERT INTO users (name, email, password, role) VALUES (:name, :email, :password, :role)";
             $stmt = $db->prepare($sql);
-            $stmt->execute([
-                ':name' => $data['name'],
-                ':email' => $data['email'],
-                ':password' => $data['password'],
-                ':role' => $data['role']
-            ]);
+            $stmt->bindValue(':name', $data['name']);
+            $stmt->bindValue(':email', $data['email']);
+            $stmt->bindValue(':password', $data['password']);
+            $stmt->bindValue(':role', $data['role']);
+            $stmt->execute();
         }
     }
 
@@ -181,8 +180,9 @@ class User {
         }
 
         $db = DB::getInstance();
-        $stmt = $db->prepare("DELETE FROM users WHERE id = ?");
-        return $stmt->execute([(int)$id]);
+        $stmt = $db->prepare("DELETE FROM users WHERE id = :id");
+        $stmt->bindValue(':id', (int)$id, PDO::PARAM_INT);
+        return $stmt->execute();
     }
 }
 ?>

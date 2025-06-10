@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Directory Traversal Test</title>
+</head>
+<body>
+    <h2>Directory Traversal Test</h2>
+    <form action="index.php?controller=Product&action=store" method="POST" enctype="multipart/form-data">
+        <label>CSRF Token: <input type="text" name="csrf_token" required></label><br><br>
+        <input type="hidden" name="name" value="Test Product">
+        <input type="hidden" name="price" value="1000">
+        <input type="hidden" name="description" value="Test Description">
+        <label>Chọn file để upload: <input type="file" name="image" required></label><br><br>
+        <input type="submit" value="Upload">
+    </form>
+    <p>Hãy copy CSRF token từ form thêm sản phẩm thật và dán vào ô trên.<br>
+    Để test Directory Traversal, bạn có thể đổi tên file trên máy tính thành dạng <b>../../../etc/passwd</b> hoặc <b>..\\..\\..\\windows\\system32\\config\\sam</b> trước khi upload.</p>
+</body>
+</html> 

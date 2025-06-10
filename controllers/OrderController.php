@@ -36,16 +36,25 @@ class OrderController {
             $user = User::find($user_id);
             $user_name = $user['name'] ?? '';
             // Lưu đơn hàng với user_name
-            $stmt = $db->prepare("INSERT INTO orders (user_id, user_name, order_date, total) VALUES (?, ?, NOW(), ?)");
-            $stmt->execute([$user_id, $user_name, $total]);
+            $stmt = $db->prepare("INSERT INTO orders (user_id, user_name, order_date, total) VALUES (:user_id, :user_name, NOW(), :total)");
+            $stmt->bindValue(':user_id', $user_id, PDO::PARAM_INT);
+            $stmt->bindValue(':user_name', $user_name);
+            $stmt->bindValue(':total', $total);
+            $stmt->execute();
             $order_id = $db->lastInsertId();
             // Lưu chi tiết đơn hàng với product_name và user_name
-            $stmt = $db->prepare("INSERT INTO order_items (order_id, product_id, product_name, user_name, quantity, price) VALUES (?, ?, ?, ?, ?, ?)");
+            $stmt = $db->prepare("INSERT INTO order_items (order_id, product_id, product_name, user_name, quantity, price) VALUES (:order_id, :product_id, :product_name, :user_name, :quantity, :price)");
             foreach ($cart as $id => $qty) {
                 $product = Product::find($id);
                 if ($product) {
                     $product_name = $product['name'];
-                    $stmt->execute([$order_id, $id, $product_name, $user_name, $qty, $product['price']]);
+                    $stmt->bindValue(':order_id', $order_id, PDO::PARAM_INT);
+                    $stmt->bindValue(':product_id', $id, PDO::PARAM_INT);
+                    $stmt->bindValue(':product_name', $product_name);
+                    $stmt->bindValue(':user_name', $user_name);
+                    $stmt->bindValue(':quantity', $qty, PDO::PARAM_INT);
+                    $stmt->bindValue(':price', $product['price']);
+                    $stmt->execute();
                 }
             }
             $db->commit();
@@ -74,8 +83,9 @@ class OrderController {
         }
         $user_id = $_SESSION['user_id'];
         $db = DB::getInstance();
-        $stmt = $db->prepare("SELECT * FROM orders WHERE user_id = ? ORDER BY order_date DESC");
-        $stmt->execute([$user_id]);
+        $stmt = $db->prepare("SELECT * FROM orders WHERE user_id = :user_id ORDER BY order_date DESC");
+        $stmt->bindValue(':user_id', $user_id, PDO::PARAM_INT);
+        $stmt->execute();
         $orders = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
         // Truyền dữ liệu sang view qua layout
@@ -100,11 +110,14 @@ class OrderController {
         if ($order_id > 0) {
             $db = DB::getInstance();
             // Xóa order_items trước (nếu có ràng buộc foreign key ON DELETE CASCADE thì không cần)
-            $stmt = $db->prepare("DELETE FROM order_items WHERE order_id = ?");
-            $stmt->execute([$order_id]);
+            $stmt = $db->prepare("DELETE FROM order_items WHERE order_id = :order_id");
+            $stmt->bindValue(':order_id', $order_id, PDO::PARAM_INT);
+            $stmt->execute();
             // Xóa đơn hàng thuộc user
-            $stmt = $db->prepare("DELETE FROM orders WHERE id = ? AND user_id = ?");
-            $stmt->execute([$order_id, $user_id]);
+            $stmt = $db->prepare("DELETE FROM orders WHERE id = :order_id AND user_id = :user_id");
+            $stmt->bindValue(':order_id', $order_id, PDO::PARAM_INT);
+            $stmt->bindValue(':user_id', $user_id, PDO::PARAM_INT);
+            $stmt->execute();
         }
         header("Location: index.php?controller=Order&action=myOrders");
         exit;
@@ -130,16 +143,19 @@ class OrderController {
         }
         $db = DB::getInstance();
         // Lấy thông tin đơn hàng
-        $stmt = $db->prepare("SELECT * FROM orders WHERE id = ? AND user_id = ?");
-        $stmt->execute([$order_id, $user_id]);
+        $stmt = $db->prepare("SELECT * FROM orders WHERE id = :order_id AND user_id = :user_id");
+        $stmt->bindValue(':order_id', $order_id, PDO::PARAM_INT);
+        $stmt->bindValue(':user_id', $user_id, PDO::PARAM_INT);
+        $stmt->execute();
         $order = $stmt->fetch(PDO::FETCH_ASSOC);
         if (!$order) {
             header("Location: index.php?controller=Order&action=myOrders");
             exit;
         }
         // Lấy danh sách sản phẩm trong đơn hàng (join với products để lấy hình ảnh, tên...)
-        $stmt = $db->prepare("SELECT oi.*, p.name, p.image FROM order_items oi JOIN products p ON oi.product_id = p.id WHERE oi.order_id = ?");
-        $stmt->execute([$order_id]);
+        $stmt = $db->prepare("SELECT oi.*, p.name, p.image FROM order_items oi JOIN products p ON oi.product_id = p.id WHERE oi.order_id = :order_id");
+        $stmt->bindValue(':order_id', $order_id, PDO::PARAM_INT);
+        $stmt->execute();
         $items = $stmt->fetchAll(PDO::FETCH_ASSOC);
         $GLOBALS['order'] = $order;
         $GLOBALS['items'] = $items;
