@@ -1,6 +1,10 @@
 # Bật rewrite engine
 RewriteEngine On
+<<<<<<< HEAD
 RewriteBase /mywebsite/
+=======
+RewriteBase /Noku_Commerce/
+>>>>>>> cf88fa8 (fix)
 
 # Chặn truy cập trực tiếp vào các file nhạy cảm
 <FilesMatch "^\.">

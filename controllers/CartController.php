@@ -14,7 +14,11 @@ class CartController {
         } else {
             $_SESSION['cart'][$id] = $quantity;
         }
+<<<<<<< HEAD
         header("Location: /mywebsite/cart");
+=======
+        header("Location: /Noku_Commerce/cart");
+>>>>>>> cf88fa8 (fix)
         exit;
     }
 
